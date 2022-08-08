@@ -14,15 +14,11 @@ const int GPT_PARTITION_ENTRY_LBA_SIZE = 8;
 struct GPT_PARTITION_ENTRY{
     uint8_t PARTITION_TYPE_GUID[16];
     uint8_t UNIQUE_PARITTION_GUID[16];
-    uint8_t FIRST_LBA[8];
-    uint8_t LAST_LBA[8];
+    uint64_t FIRST_LBA;
+    uint64_t LAST_LBA;
     uint8_t ATTRIBUTE_FLAGS[8];
     uint8_t PARTITION_NAME[36];
 };
-
-uint64_t htonll(uint32_t _){
-    return (((uint64_t)htonl(_)) << 32) + htonl(_ >> 32);
-}
 
 int main(int argc, char* argv[]){
     if (argc != 2){
@@ -80,30 +76,29 @@ int main(int argc, char* argv[]){
             return 1;
         }
 
+        uint8_t* NO_GPT_PARTITION = (uint8_t*)calloc(GPT_PARTITION_ENTRY_TYPE_GUID_SIZE, sizeof(uint8_t));
+        if (memcmp(&(buff[CURRENT_OFFSET]), NO_GPT_PARTITION, GPT_PARTITION_ENTRY_TYPE_GUID_SIZE) == 0){
+            continue;
+        }
+
         memcpy(CURRENT_GPT_PARTITION_ENTRY, &(buff[CURRENT_OFFSET]), GPT_PARTITION_ENTRY_SIZE);
         if (CURRENT_GPT_PARTITION_ENTRY == NULL){
             printf("@memcpy error\n");
             return 1;
         }
-
-        printf("Partition Type GUID: ");
-        for(int __ = 0; __ < GPT_PARTITION_ENTRY_TYPE_GUID_SIZE; __++){
-            printf("%02x", CURRENT_GPT_PARTITION_ENTRY->PARTITION_TYPE_GUID[__]);
-        }
-        printf("\n");
-
         
-        printf("First LBA: ");
-        for(int __ = 0; __ < GPT_PARTITION_ENTRY_LBA_SIZE; __++){
-            printf("%02x", CURRENT_GPT_PARTITION_ENTRY->FIRST_LBA[__]);
+        for(int __ = 0; __ < GPT_PARTITION_ENTRY_TYPE_GUID_SIZE; __++){
+            printf("%02X", CURRENT_GPT_PARTITION_ENTRY->PARTITION_TYPE_GUID[__]);
         }
-        printf("\n");
+        
+        uint64_t FIRST_LBA = CURRENT_GPT_PARTITION_ENTRY->FIRST_LBA;
+        uint64_t LAST_LBA = CURRENT_GPT_PARTITION_ENTRY->LAST_LBA;
+        uint64_t LBA_REAL_ADDR = FIRST_LBA * SECTOR_SIZE;
+        uint64_t LBA_GAP = (LAST_LBA - FIRST_LBA) * SECTOR_SIZE;
 
-        printf("Last  LBA: ");
-        for(int __ = 0; __ < GPT_PARTITION_ENTRY_LBA_SIZE; __++){
-            printf("%02x", CURRENT_GPT_PARTITION_ENTRY->LAST_LBA[__]);
-        }
-        printf("\n");
+
+        printf(" %zu", LBA_REAL_ADDR);
+        printf(" %zu\n", LBA_GAP);
     }
 
 
