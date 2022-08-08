@@ -33,7 +33,9 @@
 
 # Sample files
 gpt_128.dd
+gpt_mysample.dd
 mbr_128.dd
 
 # Binary
-main
+gpt-parse
+*.o
