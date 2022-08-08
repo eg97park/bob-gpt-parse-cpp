@@ -23,8 +23,8 @@ struct GPT_PARTITION_ENTRY{
 };
 
 
-uint8_t* readFile(const char* filePath){
-    FILE* fp = fopen(filePath, "rb");
+uint8_t* readFile(const char* filePath_, size_t* sz_){
+    FILE* fp = fopen(filePath_, "rb");
     if (fp == NULL){
         printf("@fopen error\n");
         return NULL;
@@ -42,6 +42,7 @@ uint8_t* readFile(const char* filePath){
         fclose(fp);
         return NULL;
     }
+    *sz_ = sz;
     rewind(fp);
 
     uint8_t* buff = (uint8_t*)malloc(sizeof(uint8_t) * sz);
@@ -81,7 +82,8 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    uint8_t* buff = readFile(argv[1]);
+    size_t readSize = 0;
+    uint8_t* buff = readFile(argv[1], &readSize);
     if (buff == NULL){
         printf("@readFile error\n");
         return -1;
@@ -93,6 +95,7 @@ int main(int argc, char* argv[]){
         return 1;
     }
     
+    int GPT_PARTITION_NUM = 0;
     uint8_t* NO_GPT_PARTITION = (uint8_t*)calloc(GPT_PARTITION_ENTRY_TYPE_GUID_SIZE, sizeof(uint8_t));
     for (int _ = 0; _ < MAX_GPT_PARTITION; _++){
         partition_entries[_] = (uint8_t*)malloc(GPT_PARTITION_ENTRY_SIZE);
@@ -139,9 +142,14 @@ int main(int argc, char* argv[]){
         printf(" %zu", LBA_REAL_ADDR);
         printf(" %zu\n", LBA_GAP);
         free(CURRENT_GPT_PARTITION_ENTRY);
+
+        if (GPT_PARTITION_ENTRY_OFFSET + (_ + 1) * GPT_PARTITION_ENTRY_SIZE >= readSize){
+            GPT_PARTITION_NUM = _ + 1;
+            break;
+        }
     }
 
-    free2DArray(partition_entries, MAX_GPT_PARTITION);
+    free2DArray(partition_entries, GPT_PARTITION_NUM);
     free(NO_GPT_PARTITION);
     free(buff);
 
