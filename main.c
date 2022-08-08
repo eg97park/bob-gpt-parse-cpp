@@ -1,3 +1,5 @@
+// gcc -o gpt-parse main.c
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
