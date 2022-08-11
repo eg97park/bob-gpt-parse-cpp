@@ -119,7 +119,7 @@ int main(int argc, char* argv[]){
 
         if (memcmp(&(buff[CURRENT_OFFSET]), NO_GPT_PARTITION, GPT_PARTITION_ENTRY_TYPE_GUID_SIZE) == 0){
             free(CURRENT_GPT_PARTITION_ENTRY);
-            continue;
+            break;;
         }
 
         memcpy(CURRENT_GPT_PARTITION_ENTRY, &(buff[CURRENT_OFFSET]), GPT_PARTITION_ENTRY_SIZE);
