@@ -138,7 +138,7 @@ int main(int argc, char* argv[]){
         uint64_t FIRST_LBA = CURRENT_GPT_PARTITION_ENTRY->FIRST_LBA;
         uint64_t LAST_LBA = CURRENT_GPT_PARTITION_ENTRY->LAST_LBA;
         uint64_t LBA_REAL_ADDR = FIRST_LBA * SECTOR_SIZE;
-        uint64_t LBA_GAP = (LAST_LBA - FIRST_LBA) * SECTOR_SIZE;
+        uint64_t LBA_GAP = (LAST_LBA - FIRST_LBA + 1) * SECTOR_SIZE; // size
 
 
         printf(" %zu", LBA_REAL_ADDR);
